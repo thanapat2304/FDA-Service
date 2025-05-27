@@ -1,0 +1,386 @@
+{% extends 'base_login.html' %}
+
+{% block content %}
+<style>
+    .select2-container--default .select2-selection--single {
+        border-top-left-radius: 8px !important;
+        border-bottom-left-radius: 8px !important;
+        border-top-right-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+        padding: 0.5rem !important;
+        height: calc(2.8rem + 1px) !important;
+        background-color: rgba(28, 35, 51, 1) !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        top: 50% !important;
+        right: 8px !important;
+        transform: translateY(-50%) !important;
+    }   
+    
+    .select2-container--default .select2-dropdown {
+        background-color: rgba(28, 35, 51, 1) !important;
+        border-radius: 8px !important;
+        border: 1px solid #ced4da !important;/
+    }
+    
+    .select2-container--default .select2-results__option {
+        background-color: rgba(28, 35, 51, 1) !important;
+        color: white !important;
+    }
+    
+    .select2-container--default .select2-results__option--highlighted {
+        background-color: rgba(13, 110, 253, 0.25) !important;
+        color: #fff !important;
+    }
+
+    .select2-selection:focus {
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+    }
+
+    .select2-selection__rendered {
+        color: #fff !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__placeholder {
+        color: #bfc4ca !important;
+    }
+
+    a.input-group-text {
+        text-decoration: none;
+    }
+
+    /* Flash message styles */
+    .alert {
+        margin-bottom: 1rem;
+        padding: 1rem;
+        border-radius: 8px;
+        border: 1px solid transparent;
+    }
+
+    .alert-success {
+        color: #0f5132;
+        background-color: #d1e7dd;
+        border-color: #badbcc;
+    }
+
+    .alert-error {
+        color: #842029;
+        background-color: #f8d7da;
+        border-color: #f5c2c7;
+    }
+
+    .alert-icon {
+        margin-right: 0.5rem;
+    }
+</style>
+
+<div class="row">
+    <div class="col-12">  
+        <div class="content-header">
+            <h1><i class="fas fa-file-upload text-primary"></i> Upload New Document</h1>
+            <p class="text-muted">Select a brand and product, then choose the document type you want to upload</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 mx-auto">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Document Upload</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    <h5 class="mb-4">1. Type</h5>
+                    <label class="form-check-label">Address Type</label>
+                    <div class="col mt-2">
+                        <div class="form-check form-check-inline">
+                            <input name="type" class="form-check-input" type="radio" value="Specifications" id="type-Specifications" {% if selected_types == "Specifications" %} checked {% endif %} required>
+                            <label class="form-check-label" for="type-Specifications">Specifications</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input name="type" class="form-check-input" type="radio" value="COA" id="type-COA" {% if selected_types == "COA" %} checked {% endif %}>
+                            <label class="form-check-label" for="type-COA">COA</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input name="type" class="form-check-input" type="radio" value="Certificates" id="type-Certificates" {% if selected_types == "Certificates" %} checked {% endif %}>
+                            <label class="form-check-label" for="type-Certificates">Certificates</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input name="type" class="form-check-input" type="radio" value="FDA" id="type-fda" {% if selected_types == "FDA" %} checked {% endif %}>
+                            <label class="form-check-label" for="type-fda">FDA</label>
+                        </div>
+                    </div>
+                    <br>
+                    <h5 class="mb-4">2. Details</h5>
+                    <div class="row g-6">
+                        <div class="col-md-6">
+                            <label class="form-label" for="selectTypeOpt">Product</label>
+                            <div class="input-group">
+                                <div class="flex-grow-1">
+                                    <select name="product" id="product" class="form-select select2" required disabled>
+                                        <option value="">-- เลือกสินค้า --</option>
+                                        {% for i in range(product1|length) %}
+                                            <option value="{{ product1[i] }}" {% if product1[i] == selected_mat %}selected{% endif %}>
+                                            {{ product2[i] }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <a href="{{ url_for('product') }}" class="input-group-text">Add Product</a>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="selectTypeOpt">Year</label>
+                            <select name="year" id="year" class="form-select color-dropdown" required disabled>
+                                <option value="">-- เลือกปี --</option>
+                                {% for year in year %}
+                                    <option value="{{ year.id }}" {% if year.id == selected_year %}selected{% endif %}>
+                                        {{ year.AS_Name_year }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="License">License Number</label>
+                            <input type="text" id="License" name="License" class="form-control License-mask" placeholder="" required disabled>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="PO">PO Reference</label>
+                            <input type="text" id="PO" name="PO" class="form-control PO-mask" placeholder="" required disabled>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="pdf_file">PDF File</label>
+                            <input type="file" id="pdf_file" name="pdf_file" class="form-control" accept=".pdf" required disabled>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="Multi_file">Multi PDF Files (COA)</label>
+                            <input type="file" id="Multi_file" name="Multi_file[]" class="form-control" accept=".pdf" multiple required>
+                            <div id="file-limit-error" class="text-danger mt-1" style="display: none;"></div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label" for="Note">Note</label>
+                            <textarea name="Note" class="form-control" id="Note" rows="2" placeholder=""></textarea>
+                        </div>
+
+                        <div class="col mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                Submit <i class="fa-solid fa-arrow-right ms-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">Document Type Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="documentTypeAccordion">
+                    <!-- Product Specification -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingSpec">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                data-bs-target="#collapseSpec" aria-expanded="false" aria-controls="collapseSpec">
+                                <i class="fas fa-file-alt me-2"></i> Product Specification
+                            </button>
+                        </h2>
+                        <div id="collapseSpec" class="accordion-collapse collapse" aria-labelledby="headingSpec" 
+                             data-bs-parent="#documentTypeAccordion">
+                            <div class="accordion-body">
+                                <p>Product specifications include technical details, dimensions, materials, and performance criteria.</p>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">PDF document upload</li>
+                                    <li class="list-group-item">Additional notes</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Product COA -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingCOA">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                data-bs-target="#collapseCOA" aria-expanded="false" aria-controls="collapseCOA">
+                                <i class="fas fa-certificate me-2"></i> Product COA
+                            </button>
+                        </h2>
+                        <div id="collapseCOA" class="accordion-collapse collapse" aria-labelledby="headingCOA" 
+                             data-bs-parent="#documentTypeAccordion">
+                            <div class="accordion-body">
+                                <p>Certificate of Analysis (COA) documents verify product quality and test results.</p>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">Year of document</li>
+                                    <li class="list-group-item">PO reference number</li>
+                                    <li class="list-group-item">COA PDF document upload</li>
+                                    <li class="list-group-item">Packing List PDF upload (optional)</li>
+                                    <li class="list-group-item">Additional notes</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Product Certificate -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingCert">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                data-bs-target="#collapseCert" aria-expanded="false" aria-controls="collapseCert">
+                                <i class="fas fa-award me-2"></i> Product Certificate
+                            </button>
+                        </h2>
+                        <div id="collapseCert" class="accordion-collapse collapse" aria-labelledby="headingCert" 
+                             data-bs-parent="#documentTypeAccordion">
+                            <div class="accordion-body">
+                                <p>Product certificates include compliance documents, quality certifications, and regulatory approvals.</p>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">Certificate PDF document upload</li>
+                                    <li class="list-group-item">Additional notes</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Product FDA License -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="headingFDA">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                data-bs-target="#collapseFDA" aria-expanded="false" aria-controls="collapseFDA">
+                                <i class="fas fa-medkit me-2"></i> Product FDA License
+                            </button>
+                        </h2>
+                        <div id="collapseFDA" class="accordion-collapse collapse" aria-labelledby="headingFDA" 
+                             data-bs-parent="#documentTypeAccordion">
+                            <div class="accordion-body">
+                                <p>FDA License documents contain regulatory approval information for products requiring FDA clearance.</p>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">English product name</li>
+                                    <li class="list-group-item">Thai product name</li>
+                                    <li class="list-group-item">Manufacturer information</li>
+                                    <li class="list-group-item">FDA registration number</li>
+                                    <li class="list-group-item">Product type submitted to FDA</li>
+                                    <li class="list-group-item">FDA license PDF document upload</li>
+                                    <li class="list-group-item">Additional notes</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('Multi_file').addEventListener('change', function () {
+    const files = this.files;
+    const errorDiv = document.getElementById('file-limit-error');
+    
+    if (files.length > 3) {
+        errorDiv.style.display = 'block';
+        this.value = ''; // ล้างไฟล์ที่เลือก
+    } else {
+        errorDiv.style.display = 'none';
+    }
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const typeRadios = document.querySelectorAll('input[name="type"]');
+    const fields = {
+        product: document.getElementById('product'),
+        year: document.getElementById('year'),
+        license: document.getElementById('License'),
+        po: document.getElementById('PO'),
+        pdf_file: document.getElementById('pdf_file'),
+        multi_file: document.getElementById('Multi_file'),
+        note: document.getElementById('Note')
+    };
+
+    function setAllDisabled() {
+        for (let key in fields) {
+            if (fields[key].tagName === 'SELECT' || fields[key].tagName === 'TEXTAREA' || fields[key].tagName === 'INPUT') {
+                fields[key].disabled = true;
+            }
+        }
+    }
+
+    function enableFields(keys) {
+        keys.forEach(key => {
+            if (fields[key]) {
+                fields[key].disabled = false;
+            }
+        });
+    }
+
+    typeRadios.forEach(radio => {
+        radio.addEventListener('change', function () {
+            setAllDisabled();
+
+            switch (this.value) {
+                case 'Specifications':
+                    enableFields(['product', 'note', 'pdf_file']);
+                    break;
+                case 'COA':
+                    enableFields(['product', 'year', 'po', 'note', 'multi_file']);
+                    break;
+                case 'Certificates':
+                    enableFields(['product', 'pdf_file', 'note']);
+                    break;
+                case 'FDA':
+                    enableFields(['product', 'license', 'note', 'pdf_file']);
+                    break;
+            }
+        });
+    });
+
+    setAllDisabled();
+
+    const checkedRadio = document.querySelector('input[name="type"]:checked');
+    if (checkedRadio) {
+        checkedRadio.dispatchEvent(new Event('change'));
+    }
+});
+</script>
+
+<style>
+    .document-type-selection .card {
+        cursor: pointer;
+        transition: all 0.2s ease;
+        height: 100%;
+    }
+    
+    .document-type-selection .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+    }
+    
+    .document-type-selection .card.active {
+        border-color: var(--bs-primary);
+        background-color: rgba(var(--bs-primary-rgb), 0.05);
+    }
+    
+    .required-label::after {
+        content: " *";
+        color: var(--bs-danger);
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#product').select2({
+            width: '100%',
+            allowClear: true,
+            placeholder: "-- เลือกสินค้า --"
+        });
+    });
+</script>
+{% endblock %}

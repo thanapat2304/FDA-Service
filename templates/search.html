@@ -1,0 +1,343 @@
+{% extends 'base_login.html' %}
+
+{% block content %}
+
+<style>
+    .select2-container--default .select2-selection--single {
+        border-radius: 8px !important;
+        padding: 0.5rem !important;
+        height: calc(2.8rem + 1px) !important;
+        background-color: rgba(28, 35, 51, 1) !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        top: 50% !important;
+        right: 8px !important;
+        transform: translateY(-50%) !important;
+    }   
+    
+    .select2-container--default .select2-dropdown {
+        background-color: rgba(28, 35, 51, 1) !important;
+        border-radius: 8px !important;
+        border: 1px solid #ced4da !important;/
+    }
+    
+    .select2-container--default .select2-results__option {
+        background-color: rgba(28, 35, 51, 1) !important;
+        color: white !important;
+    }
+    
+    .select2-container--default .select2-results__option--highlighted {
+        background-color: rgba(13, 110, 253, 0.25) !important;
+        color: #fff !important;
+    }
+
+    .select2-selection:focus {
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+    }
+
+    .select2-selection__rendered {
+        color: #fff !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__placeholder {
+        color: #bfc4ca !important;
+    }
+</style>
+
+<div class="row">
+    <div class="col-12">
+        <div class="content-header">
+            <h1><i class="fas fa-search"></i> ค้นหาเอกสาร</h1>
+            <p class="text-muted">ค้นหาผลิตภัณฑ์และเอกสารที่เกี่ยวข้อง</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">ตัวเลือกการค้นหา</h5>
+            </div>
+            <div class="card-body">
+                <form method="GET" onsubmit="return validateCheckboxes()">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="search-term" class="form-label">คำค้นหา</label>
+                            <input type="text" class="form-control" id="search-term" name="name_product" 
+                                  value="{{ selected_product or '' }}" placeholder="ชื่อผลิตภัณฑ์, รหัส, คำอธิบาย..." required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="brand-filter" class="form-label">แบรนด์</label>
+                            <select class="form-select" id="brand-filter" name="brand_id" required>
+                                <option value="" {% if selected_brand == '' %}selected{% endif %}>ทั้งหมด</option>
+                                {% for brand in brands %}
+                                    <option value="{{ brand.BCBRAND_ID }}" {% if selected_brand == brand.BCBRAND_ID|string %}selected{% endif %}>
+                                        {{ brand.bcbrand_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>                      
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label d-block">ประเภทเอกสาร</label>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="spec-check" name="doc_types" 
+                                      value="specification" {% if 'specification' in selected_doc_types %}checked{% endif %}>
+                                <label class="form-check-label" for="spec-check">ข้อมูลจำเพาะ</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="coa-check" name="doc_types" 
+                                      value="coa" {% if 'coa' in selected_doc_types %}checked{% endif %}>
+                                <label class="form-check-label" for="coa-check">COA</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="cert-check" name="doc_types" 
+                                      value="certificate" {% if 'certificate' in selected_doc_types %}checked{% endif %}>
+                                <label class="form-check-label" for="cert-check">ใบรับรอง</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="fda-check" name="doc_types" 
+                                      value="fda" {% if 'fda' in selected_doc_types %}checked{% endif %}>
+                                <label class="form-check-label" for="fda-check">ใบอนุญาต FDA</label>
+                            </div>
+                            <div id="checkbox-error" class="text-danger mt-1" style="display: none;">
+                                กรุณาเลือกประเภทเอกสารอย่างน้อย 1 รายการ
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="date-filter" class="form-label">ช่วงเวลา</label>
+                            <select class="form-select" id="date-filter" name="date_range">
+                                <option value="" {% if selected_date == '' %}selected{% endif %}>ทั้งหมด</option>
+                                <option value="7days" {% if selected_date == '7days' %}selected{% endif %}>7 วันล่าสุด</option>
+                                <option value="30days" {% if selected_date == '30days' %}selected{% endif %}>30 วันล่าสุด</option>
+                                <option value="90days" {% if selected_date == '90days' %}selected{% endif %}>90 วันล่าสุด</option>
+                                <option value="1year" {% if selected_date == '1year' %}selected{% endif %}>1 ปีล่าสุด</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-2"></i> ค้นหา
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        {% if search_performed %}
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">ผลการค้นหา</h5>
+                    <span class="badge bg-primary">{{ products|length }} รายการที่พบ</span>
+                </div>
+                <div class="card-body">
+                    {% if products %}
+                        <div class="table-responsive">
+                            <table id="searchResultsTable" class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Brand</th>
+                                        <th>Description</th>
+                                        <th>Documents</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for product in products %}
+                                        <tr>
+                                            <td>{{ product[1] }} | {{ product[2] }}</td>
+                                            <td>{{ product[3] }}</td>
+                                            <td>{{ product.description|truncate(50) }}</td>
+                                            <td>
+                                                <span class="badge bg-primary" title="Specifications">
+                                                    <i class="fas fa-file-alt"></i> {{ product[4] }}
+                                                </span>
+                                                <span class="badge bg-success" title="COAs">
+                                                    <i class="fas fa-certificate"></i> {{ product[5] }}
+                                                </span>
+                                                <span class="badge bg-warning" title="Certificates">
+                                                    <i class="fas fa-award"></i> {{ product[6] }}
+                                                </span>
+                                                <span class="badge bg-danger" title="FDA Licenses">
+                                                    <i class="fas fa-medkit"></i> {{ product[7] }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <button class="btn btn-sm btn-primary" onclick="goToDocuments({{ product[0] }})">
+                                                        <i class="fas fa-folder-open"></i> View
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        <span class="visually-hidden">Toggle Dropdown</span>
+                                                    </button>
+                                                    <ul class="dropdown-menu">
+                                                        {% if product[4] > 0 %}
+                                                            <li>
+                                                                <button class="dropdown-item" onclick="goToSection({{ product[0] }}, 'spec-content')">
+                                                                    <i class="fas fa-file-alt text-primary me-2"></i> Specifications
+                                                                </button>
+                                                            </li>
+                                                        {% endif %}
+                                                        
+                                                        {% if product[5] > 0 %}
+                                                            <li>
+                                                                <button class="dropdown-item" onclick="goToSection({{ product[0] }}, 'coa-content')">
+                                                                    <i class="fas fa-certificate text-success me-2"></i> COAs
+                                                                </button>
+                                                            </li>
+                                                        {% endif %}
+                                                        
+                                                        {% if product[6] > 0 %}
+                                                            <li>
+                                                                <button class="dropdown-item" onclick="goToSection({{ product[0] }}, 'cert-content')">
+                                                                    <i class="fas fa-award text-warning me-2"></i> Certificates
+                                                                </button>
+                                                            </li>
+                                                        {% endif %}
+                                                        
+                                                        {% if product[7] > 0 %}
+                                                            <li>
+                                                                <button class="dropdown-item" onclick="goToSection({{ product[0] }}, 'fda-content')">
+                                                                    <i class="fas fa-medkit text-danger me-2"></i> FDA Licenses
+                                                                </button>
+                                                            </li>
+                                                        {% endif %}
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i> No results found matching your search criteria. Please try different search terms or filters.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+{% endblock %}
+
+{% block extra_js %}
+<!-- jQuery must be loaded first -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
+
+<!-- jQuery (ต้องมี jQuery) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+
+<script>
+function goToDocuments(productId) {
+    const dateRange = document.getElementById('date-filter').value;
+
+    const checkboxes = document.querySelectorAll('input[name="doc_types"]:checked');
+    const selectedTypes = Array.from(checkboxes).map(cb => cb.value);
+
+    if (selectedTypes.length === 0) {
+        document.getElementById('checkbox-error').style.display = 'block';
+        return;
+    } else {
+        document.getElementById('checkbox-error').style.display = 'none';
+    }
+
+    const url = `/documents_se/${productId}?date_range=${encodeURIComponent(dateRange)}&doc_types=${encodeURIComponent(selectedTypes.join(','))}`;
+    window.location.href = url;
+}
+</script>
+
+<script>
+function goToSection(productId, anchorId) {
+    const dateRange = document.getElementById('date-filter').value;
+
+    const selectedDocTypes = Array.from(document.querySelectorAll('input[name="doc_types"]:checked'))
+        .map(cb => cb.value)
+        .join(',');
+
+    let url = `/documents_se/${productId}?`;
+
+    const params = new URLSearchParams();
+    if (dateRange) params.append('date_range', dateRange);
+    if (selectedDocTypes) params.append('doc_types', selectedDocTypes);
+
+    url += params.toString();
+    url += `#${anchorId}`;
+    window.location.href = url;
+}
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        // Initialize DataTable
+        if (document.getElementById('searchResultsTable')) {
+            $(document).ready(function() {
+                $('#searchResultsTable').DataTable({
+                    "pageLength": 10,
+                    "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+                    "language": {
+                        "search": "Filter results:",
+                        "lengthMenu": "Show _MENU_ entries per page",
+                        "info": "Showing _START_ to _END_ of _TOTAL_ entries",
+                        "infoEmpty": "Showing 0 to 0 of 0 entries",
+                        "infoFiltered": "(filtered from _MAX_ total entries)",
+                        "paginate": {
+                            "first": "First",
+                            "last": "Last",
+                            "next": "Next",
+                            "previous": "Previous"
+                        }
+                    }
+                });
+            });
+        }
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+        $('#brand-filter').select2({
+            placeholder: 'ค้นหาแบรนด์',
+            allowClear: true,
+            width: '100%'
+        });
+    });
+</script>
+
+<script>
+    function validateCheckboxes() {
+        const checkboxes = document.querySelectorAll('input[name="doc_types"]:checked');
+        const errorText = document.getElementById('checkbox-error');
+
+        if (checkboxes.length === 0) {
+            errorText.style.display = 'block';
+            return false;
+        } else {
+            errorText.style.display = 'none';
+            return true;
+        }
+    }
+</script>
+{% endblock %}

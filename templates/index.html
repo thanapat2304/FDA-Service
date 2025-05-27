@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+
+{% block title %}หน้าแรก - FDA Document Track{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #2c3e50, #4ca1af);
+        color: white;
+        padding: 5rem 0;
+        margin-bottom: 3rem;
+        border-radius: 10px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='rgba(255,255,255,.07)' fill-rule='evenodd'/%3E%3C/svg%3E");
+        background-size: 20px;
+        opacity: 0.3;
+        pointer-events: none;
+    }
+    
+    .feature-card {
+        height: 100%;
+        transition: all 0.3s ease;
+        border: none;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    }
+    
+    .feature-icon {
+        font-size: 3rem;
+        margin-bottom: 1.5rem;
+        color: var(--bs-primary);
+        background: rgba(var(--bs-primary-rgb), 0.1);
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        margin: 0 auto 1.5rem;
+    }
+    
+    .feature-card:hover .feature-icon {
+        color: #fff;
+        background: var(--bs-primary);
+    }
+    
+    .card-cta {
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding-top: 1rem;
+        margin-top: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-4 fw-bold mb-4">FDA Document Track</h1>
+                <p class="lead mb-4">ระบบจัดการเอกสารผลิตภัณฑ์อย่างครบวงจร</p>
+                <p class="mb-5">จัดการ ค้นหา และติดตามเอกสารสำคัญของผลิตภัณฑ์ได้อย่างง่ายดายและมีประสิทธิภาพ</p>
+                <div>
+                    {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-light btn-lg me-2 px-4">
+                        <i class="fas fa-tachometer-alt me-2"></i> ไปที่แดชบอร์ด
+                    </a>
+                    {% else %}
+                    <a href="{{ url_for('login') }}" class="btn btn-light btn-lg me-2 px-4">
+                        <i class="fas fa-sign-in-alt me-2"></i> เข้าสู่ระบบ
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="container">
+    <div class="row text-center mb-5">
+        <div class="col-lg-8 mx-auto">
+            <h2 class="fw-bold">คุณสมบัติหลัก</h2>
+            <p class="lead text-muted">ระบบที่ช่วยจัดการเอกสารผลิตภัณฑ์ของคุณได้อย่างมีประสิทธิภาพ</p>
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        <div class="col-md-6 col-lg-3">
+            <div class="card feature-card h-100">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h5 class="card-title">จัดการเอกสาร</h5>
+                    <p class="card-text">จัดเก็บและจัดการเอกสารประเภทต่างๆ เช่น Specification, COA, Certificate และ FDA License</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-3">
+            <div class="card feature-card h-100">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h5 class="card-title">ค้นหาขั้นสูง</h5>
+                    <p class="card-text">ค้นหาเอกสารได้อย่างรวดเร็วด้วยระบบค้นหาขั้นสูงที่มีตัวกรองหลายแบบ</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-3">
+            <div class="card feature-card h-100">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h5 class="card-title">รายงานและสถิติ</h5>
+                    <p class="card-text">ดูภาพรวมของข้อมูลผ่านรายงานและกราฟที่ช่วยให้วิเคราะห์ข้อมูลได้ง่าย</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-3">
+            <div class="card feature-card h-100">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h5 class="card-title">จัดการผู้ใช้</h5>
+                    <p class="card-text">กำหนดสิทธิ์การเข้าถึงข้อมูลและติดตามประวัติการใช้งานของผู้ใช้ในระบบ</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-5 pt-5 pb-5">
+        <div class="col-md-8 mx-auto text-center">
+            <h3 class="mb-4">พร้อมใช้งานแล้ววันนี้</h3>
+            <p class="lead mb-4">เริ่มใช้งานระบบจัดการเอกสารที่จะช่วยให้การทำงานของคุณง่ายขึ้น</p>
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg px-5">
+                <i class="fas fa-tachometer-alt me-2"></i> ไปที่แดชบอร์ด
+            </a>
+            {% else %}
+            <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg px-5">
+                <i class="fas fa-sign-in-alt me-2"></i> เข้าสู่ระบบ
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

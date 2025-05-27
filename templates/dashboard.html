@@ -1,0 +1,645 @@
+{% extends 'base_login.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block extra_css %}
+<!-- Chart.js CSS -->
+<style>
+    .dashboard-header {
+        background: linear-gradient(135deg, #2c3e50, #4ca1af);
+        color: white;
+        padding: 2.5rem 0;
+        margin-bottom: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .dashboard-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='rgba(255,255,255,.07)' fill-rule='evenodd'/%3E%3C/svg%3E");
+        background-size: 20px;
+        opacity: 0.2;
+        pointer-events: none;
+    }
+    
+    .welcome-heading {
+        font-size: 2.5rem;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1rem;
+    }
+    
+    .stats-welcome-text {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        max-width: 80%;
+    }
+    
+    .welcome-buttons {
+        margin-top: 1.5rem;
+    }
+    
+    .stat-card {
+        transition: all 0.3s ease;
+        border: none;
+        border-radius: 10px;
+        overflow: hidden;
+        background: linear-gradient(145deg, var(--bs-gray-800), var(--bs-gray-900));
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+    }
+    
+    .stat-icon {
+        font-size: 3rem;
+        margin-bottom: 0.5rem;
+        background: rgba(255, 255, 255, 0.1);
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        margin: 0 auto 1rem;
+    }
+    
+    .stats-count {
+        font-size: 3rem;
+        font-weight: 700;
+        text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        margin-bottom: 0;
+        background: linear-gradient(to right, #fff, rgba(255,255,255,0.7));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .chart-container {
+        position: relative;
+        height: 300px;
+        width: 100%;
+    }
+    
+    .chart-card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        background-color: var(--bs-gray-800);
+        transition: all 0.3s ease;
+    }
+    
+    .chart-card:hover {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .document-type-pill {
+        font-size: 0.85rem;
+        padding: 0.25rem 0.5rem;
+        margin-right: 0.25rem;
+    }
+    
+    .recent-docs-card {
+        border: none;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        background-color: var(--bs-gray-800);
+    }
+    
+    .recent-docs-list {
+        max-height: 470px;
+        overflow-y: auto;
+    }
+    
+    .recent-docs-list::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .recent-docs-list::-webkit-scrollbar-thumb {
+        background-color: rgba(255, 255, 255, 0.2);
+        border-radius: 3px;
+    }
+    
+    .recent-docs-list::-webkit-scrollbar-track {
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+    
+    .list-group-item {
+        background-color: transparent;
+        border-color: rgba(255, 255, 255, 0.05);
+        transition: all 0.2s ease;
+    }
+    
+    .list-group-item:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+    
+    .quick-action-btn {
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        position: relative;
+        z-index: 1;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .quick-action-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: 0.5s;
+        z-index: -1;
+    }
+    
+    .quick-action-btn:hover::before {
+        left: 100%;
+    }
+    
+    .quick-action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+    }
+    
+    .custom-card-header {
+        background: linear-gradient(145deg, var(--bs-gray-800), var(--bs-gray-700));
+        border-bottom: none;
+        padding: 1rem 1.5rem;
+        color: white;
+        font-weight: 600;
+    }
+    
+    .doc-type-icon {
+        transition: all 0.3s ease;
+    }
+    
+    .doc-type-item:hover .doc-type-icon {
+        transform: scale(1.2);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Dashboard Header -->
+<div class="dashboard-header mb-4">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8 col-md-7">
+                <h1 class="welcome-heading">Welcome to DocuTrack Pro</h1>
+                <p class="stats-welcome-text">Your comprehensive product document management system. Easily organize, track, and manage all your product documentation in one place.</p>
+                <div class="welcome-buttons">
+                    <a href="{{ url_for('new_document') }}" class="btn btn-light btn-lg me-2">
+                        <i class="fas fa-file-upload me-2"></i> Upload Document
+                    </a>
+                    <a href="{{ url_for('product') }}" class="btn btn-outline-light">
+                        <i class="fas fa-boxes me-2"></i> View Product
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-5 d-none d-md-flex justify-content-end">
+                <div style="font-size: 6rem; opacity: 0.8;">
+                    <i class="fas fa-folder-open"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Row -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card bg-primary text-white stat-card h-100">
+            <div class="card-body text-center">
+                <div class="stat-icon">
+                    <i class="fas fa-tags"></i>
+                </div>
+                <h2 class="display-4">{{ stats.brand_count }}</h2>
+                <p class="lead">Brands</p>
+            </div>
+            <div class="card-footer bg-transparent border-0 text-center">
+                <a href="{{ url_for('brands') }}" class="btn btn-sm btn-outline-light">
+                    <i class="fas fa-arrow-right"></i> View Brands
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card bg-success text-white stat-card h-100">
+            <div class="card-body text-center">
+                <div class="stat-icon">
+                    <i class="fas fa-box"></i>
+                </div>
+                <h2 class="display-4">{{ stats.product_count }}</h2>
+                <p class="lead">Products</p>
+            </div>
+            <div class="card-footer bg-transparent border-0 text-center">
+                <a href="{{ url_for('product') }}" class="btn btn-sm btn-outline-light">
+                    <i class="fas fa-arrow-right"></i> Manage Products
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+        <div class="card bg-warning text-white stat-card h-100">
+            <div class="card-body text-center">
+                <div class="stat-icon">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                </div>
+                <h2 class="display-4">{{ stats.recent_count }}</h2>
+                <p class="lead">Types</p>
+            </div>
+            <div class="card-footer bg-transparent border-0 text-center">
+                <a href="{{ url_for('type') }}?date_range=30days" class="btn btn-sm btn-outline-light">
+                    <i class="fas fa-arrow-right"></i> View Type
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card bg-info text-white stat-card h-100">
+            <div class="card-body text-center">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h2 class="display-4">{{ stats.document_count }}</h2>
+                <p class="lead">Documents (30 days)</p>
+            </div>
+            <div class="card-footer bg-transparent border-0 text-center">
+                <a href="{{ url_for('new_document') }}" class="btn btn-sm btn-outline-light">
+                    <i class="fas fa-plus"></i> Add Document
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <!-- Document Types Chart -->
+    <div class="col-md-6 mb-4">
+        <div class="card chart-card h-100">
+            <div class="card-header custom-card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i> Document Types Distribution (30 days)</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" 
+                     data-spec-count="{{ stats.spec_count }}"
+                     data-coa-count="{{ stats.coa_count }}"
+                     data-cert-count="{{ stats.cert_count }}"
+                     data-fda-count="{{ stats.fda_count }}"
+                     data-brand-names='{{ brand_names|tojson }}'
+                     data-brand-counts='{{ brand_product_counts|tojson }}'>
+                    <canvas id="documentsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Brands with Most Products -->
+    <div class="col-md-6 mb-4">
+        <div class="card chart-card h-100">
+            <div class="card-header custom-card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i> Brands by Product Count (60 days)</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="brandsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Recent Documents -->
+    <div class="col-md-7 mb-4">
+        <div class="card recent-docs-card h-100">
+            <div class="card-header custom-card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-history me-2"></i> Recently Added Documents (7 days)</h5>
+                <a href="{{ url_for('search') }}?date_range=30days" class="btn btn-sm btn-outline-light">
+                    <i class="fas fa-search"></i> View All Recent
+                </a>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush recent-docs-list">
+                    {% if recent_documents %}
+                        {% for doc in recent_documents %}
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between align-items-center">
+                                    <h6 class="mb-1">
+                                        {% if doc.type == 'specification' %}
+                                            <span class="badge bg-primary document-type-pill">SPEC</span>
+                                        {% elif doc.type == 'coa' %}
+                                            <span class="badge bg-success document-type-pill">COA</span>
+                                        {% elif doc.type == 'certificate' %}
+                                            <span class="badge bg-warning document-type-pill">CERT</span>
+                                        {% elif doc.type == 'fda' %}
+                                            <span class="badge bg-danger document-type-pill">FDA</span>
+                                        {% endif %}
+                                        {{ doc.product_name }}
+                                    </h6>
+                                    <span class="badge bg-dark text-white rounded-pill">
+                                        <i class="fas fa-calendar-alt me-1"></i> {{ doc.created_at.strftime('%Y-%m-%d') }}
+                                    </span>
+                                </div>
+                                <small class="text-muted d-block mb-2">Brand: <strong>{{ doc.brand_name }}</strong></small>
+                                <div>
+                                    <a href="{{ url_for('view_documents', product_id=doc.product_id) }}" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye me-1"></i> View Document
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="list-group-item text-center py-4">
+                            <i class="fas fa-folder-open text-muted mb-3" style="font-size: 3rem;"></i>
+                            <p class="text-muted mb-0">No recent documents found</p>
+                            <small class="text-muted">Documents added in the last 7 days will appear here</small>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Links & Info -->
+    <div class="col-md-5 mb-4">
+        <div class="card h-100">
+            <div class="card-header custom-card-header">
+                <h5 class="mb-0"><i class="fas fa-bolt me-2"></i> Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-3">
+                    <a href="{{ url_for('new_document') }}" class="btn btn-primary quick-action-btn">
+                        <i class="fas fa-file-upload me-2"></i> Upload New Document
+                    </a>
+                    <a href="{{ url_for('search') }}" class="btn btn-outline-primary quick-action-btn">
+                        <i class="fas fa-search me-2"></i> Advanced Search
+                    </a>
+                    <a href="{{ url_for('product') }}" class="btn btn-outline-primary quick-action-btn">
+                        <i class="fas fa-boxes me-2"></i> Manage Product
+                    </a>
+                    <a href="{{ url_for('brands') }}" class="btn btn-outline-primary quick-action-btn">
+                        <i class="fas fa-tags me-2"></i> View Brands
+                    </a>
+                    <a href="{{ url_for('type') }}" class="btn btn-outline-primary quick-action-btn">
+                        <i class="fa-solid fa-clipboard-list me-2"></i> View Types
+                    </a>
+                </div>
+                
+                <hr class="my-4">
+                
+                <h6 class="mb-3 fw-bold"><i class="fas fa-layer-group me-2"></i> Document Types (30 days)</h6>
+                <div class="list-group list-group-flush small">
+                    <div class="list-group-item d-flex justify-content-between align-items-center doc-type-item">
+                        <div>
+                            <i class="fas fa-file-alt text-primary me-2 doc-type-icon"></i> Specifications
+                        </div>
+                        <span class="badge bg-primary rounded-pill">{{ stats.spec_count }}</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center doc-type-item">
+                        <div>
+                            <i class="fas fa-certificate text-success me-2 doc-type-icon"></i> COAs
+                        </div>
+                        <span class="badge bg-success rounded-pill">{{ stats.coa_count }}</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center doc-type-item">
+                        <div>
+                            <i class="fas fa-award text-warning me-2 doc-type-icon"></i> Certificates
+                        </div>
+                        <span class="badge bg-warning rounded-pill">{{ stats.cert_count }}</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center doc-type-item">
+                        <div>
+                            <i class="fas fa-medkit text-danger me-2 doc-type-icon"></i> FDA Licenses
+                        </div>
+                        <span class="badge bg-danger rounded-pill">{{ stats.fda_count }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set global Chart.js options for dark theme
+        Chart.defaults.color = '#adb5bd';
+        Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
+        
+        const chartContainer = document.querySelector('.chart-container');
+        const chartData = {
+            spec: parseInt(chartContainer.dataset.specCount),
+            coa: parseInt(chartContainer.dataset.coaCount),
+            cert: parseInt(chartContainer.dataset.certCount),
+            fda: parseInt(chartContainer.dataset.fdaCount)
+        };
+        const brandNames = JSON.parse(chartContainer.dataset.brandNames);
+        const brandCounts = JSON.parse(chartContainer.dataset.brandCounts);
+
+        // Document types chart with animations and premium styling
+        const docCtx = document.getElementById('documentsChart').getContext('2d');
+        const docChart = new Chart(docCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Specifications', 'COAs', 'Certificates', 'FDA Licenses'],
+                datasets: [{
+                    data: [chartData.spec, chartData.coa, chartData.cert, chartData.fda],
+                    backgroundColor: [
+                        'rgba(13, 110, 253, 0.9)',  // Primary
+                        'rgba(25, 135, 84, 0.9)',   // Success
+                        'rgba(255, 193, 7, 0.9)',   // Warning
+                        'rgba(220, 53, 69, 0.9)'    // Danger
+                    ],
+                    borderColor: [
+                        'rgba(255, 255, 255, 0.9)',
+                        'rgba(255, 255, 255, 0.9)',
+                        'rgba(255, 255, 255, 0.9)',
+                        'rgba(255, 255, 255, 0.9)'
+                    ],
+                    borderWidth: 2,
+                    hoverOffset: 15,
+                    borderRadius: 5,
+                    spacing: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                radius: '90%',
+                animation: {
+                    animateRotate: true,
+                    animateScale: true,
+                    duration: 2000,
+                    easing: 'easeOutQuart'
+                },
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            color: '#adb5bd',
+                            padding: 20,
+                            font: {
+                                size: 13
+                            },
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 13
+                        },
+                        padding: 15,
+                        cornerRadius: 8,
+                        displayColors: true,
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Brands chart with animations and premium styling
+        const brandCtx = document.getElementById('brandsChart').getContext('2d');
+        
+        // Create gradient for bars
+        const gradient = brandCtx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(76, 161, 175, 1)');
+        gradient.addColorStop(1, 'rgba(44, 62, 80, 1)');
+        
+        const brandChart = new Chart(brandCtx, {
+            type: 'bar',
+            data: {
+                labels: brandNames,
+                datasets: [{
+                    label: 'Number of Products',
+                    data: brandCounts,
+                    backgroundColor: gradient,
+                    borderColor: 'rgba(255, 255, 255, 0.3)',
+                    borderWidth: 1,
+                    borderRadius: 6,
+                    borderSkipped: false,
+                    hoverBackgroundColor: 'rgba(114, 225, 245, 0.8)',
+                    barPercentage: 0.7,
+                    categoryPercentage: 0.8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                    duration: 2000,
+                    easing: 'easeOutQuart',
+                    delay: function(context) {
+                        return context.dataIndex * 100;
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.05)',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            stepSize: 1,
+                            color: '#adb5bd',
+                            padding: 10,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#adb5bd',
+                            padding: 10,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 13
+                        },
+                        padding: 15,
+                        cornerRadius: 8,
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                return tooltipItems[0].label;
+                            },
+                            label: function(context) {
+                                return `Products: ${context.raw}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Add hover animations for cards
+        const cards = document.querySelectorAll('.stat-card, .chart-card, .recent-docs-card');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-10px)';
+                this.style.boxShadow = '0 15px 30px rgba(0, 0, 0, 0.25)';
+                this.style.transition = 'all 0.3s ease';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = '';
+                this.style.boxShadow = '';
+            });
+        });
+    });
+</script>
+{% endblock %}

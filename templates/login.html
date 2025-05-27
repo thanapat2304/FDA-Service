@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-sign-in-alt me-2"></i> เข้าสู่ระบบ</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" action="{{ url_for('login') }}">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">ชื่อผู้ใช้</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                <input type="text" class="form-control" id="username" name="username" placeholder="กรอกชื่อผู้ใช้" required autofocus>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="password" class="form-label">รหัสผ่าน</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <input type="password" class="form-control" id="password" name="password" placeholder="กรอกรหัสผ่าน" required>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i> เข้าสู่ระบบ
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center text-muted">
+                    <small>ระบบจัดการเอกสารผลิตภัณฑ์</small>
+                </div>
+            </div>
+            
+            <div class="alert alert-info mt-4">
+                <h5 class="alert-heading"><i class="fas fa-info-circle me-2"></i> ข้อมูลการเข้าสู่ระบบ</h5>
+                <p class="mb-0">สำหรับการทดสอบ สามารถเข้าสู่ระบบด้วยบัญชีผู้ดูแลระบบได้ดังนี้:</p>
+                <ul class="mb-0 mt-2">
+                    <li>ชื่อผู้ใช้: <strong>admin</strong></li>
+                    <li>รหัสผ่าน: <strong>Admin@123</strong></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

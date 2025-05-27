@@ -1,0 +1,336 @@
+{% extends 'base_login.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        
+        <div class="content-header d-flex justify-content-between align-items-center">
+            <div>
+                <h1>Documents</h1>
+                <p class="text-muted">Product : {{ product[0] }} | {{ product[1] }}</p>
+            </div>
+            <div>
+                <a href="/new_document?type=Specifications" 
+                   class="btn btn-sm btn-outline-primary me-1">
+                    <i class="fas fa-file-alt"></i> Add Specification
+                </a>
+                <a href="/new_document?type=COA" 
+                   class="btn btn-sm btn-outline-success me-1">
+                    <i class="fas fa-certificate"></i> Add COA
+                </a>
+                <a href="/new_document?type=Certificates" 
+                   class="btn btn-sm btn-outline-warning me-1">
+                    <i class="fas fa-award"></i> Add Certificate
+                </a>
+                <a href="/new_document?type=FDA" 
+                   class="btn btn-sm btn-outline-danger">
+                    <i class="fas fa-medkit"></i> Add FDA License
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-12">
+        <ul class="nav nav-tabs custom-tab mb-4" id="documentTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link custom-tab active" id="spec-tab" data-bs-toggle="tab" 
+                        data-bs-target="#spec-content" type="button" role="tab" 
+                        aria-controls="spec-content" aria-selected="true">
+                    <i class="fas fa-file-alt me-1"></i> Specifications 
+                    <span class="badge bg-primary ms-1">{{ specifications|length }}</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link custom-tab" id="coa-tab" data-bs-toggle="tab" 
+                        data-bs-target="#coa-content" type="button" role="tab" 
+                        aria-controls="coa-content" aria-selected="false">
+                    <i class="fas fa-certificate me-1"></i> COAs
+                    <span class="badge bg-success ms-1">{{ coas|length }}</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link custom-tab" id="cert-tab" data-bs-toggle="tab" 
+                        data-bs-target="#cert-content" type="button" role="tab" 
+                        aria-controls="cert-content" aria-selected="false">
+                    <i class="fas fa-award me-1"></i> Certificates
+                    <span class="badge bg-warning ms-1">{{ certificates|length }}</span>
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link custom-tab" id="fda-tab" data-bs-toggle="tab" 
+                        data-bs-target="#fda-content" type="button" role="tab" 
+                        aria-controls="fda-content" aria-selected="false">
+                    <i class="fas fa-medkit me-1"></i> FDA Licenses
+                    <span class="badge bg-danger ms-1">{{ fda_licenses|length }}</span>
+                </button>
+            </li>
+        </ul>
+        
+        <div class="tab-content" id="documentTabsContent">
+            <!-- Specifications Tab -->
+            <div class="tab-pane fade show active" id="spec-content" role="tabpanel" aria-labelledby="spec-tab">
+                {% if specifications %}
+                    <div class="row">
+                        {% for spec in specifications %}
+                            <div class="col-md-6 col-lg-4">
+                                <div class="card document-card">
+                                    <div class="card-header bg-primary bg-opacity-25 d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-file-alt me-2"></i> Specification
+                                        </h5>
+                                        <span class="badge bg-primary doc-type-badge">SPEC</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <p class="text-muted mb-1">Document Info:</p>
+                                            <div><small><strong>Created:</strong> {{ spec[1] }}</small></div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <p class="text-muted mb-1">Notes:</p>
+                                            <p>{{ spec[2] if spec[2] else '-' }}</p>
+                                        </div>
+                                        
+                                        {% if spec[3] %}
+                                            <div class="file-info">
+                                                <i class="far fa-file-pdf fa-lg text-danger"></i>
+                                                <a href="{{ url_for('serve_spec_file', brand=product[2], filename=spec[3]) }}"
+                                                
+                                                   target="_blank" class="text-decoration-none">
+                                                    View Specification PDF
+                                                </a>
+                                            </div>
+                                        {% else %}
+                                            <div class="text-muted">No file uploaded</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i> No specifications added yet for this product.
+                        <a href="/new_document?type=Specifications" 
+                           class="alert-link">Add one now</a>.
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- COAs Tab -->
+            <div class="tab-pane fade" id="coa-content" role="tabpanel" aria-labelledby="coa-tab">
+                {% if coas %}
+                    <div class="row">
+                        {% for coa in coas %}
+                            <div class="col-md-6 col-lg-4">
+                                <div class="card document-card">
+                                    <div class="card-header bg-success bg-opacity-25 d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-certificate me-2"></i> COA
+                                            {% if coa[1] %} - {{ coa[1] }}{% endif %}
+                                        </h5>
+                                        <span class="badge bg-success doc-type-badge">COA</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row mb-3">
+                                            <div class="col-6">
+                                                <p class="text-muted mb-1">Year:</p>
+                                                <p>{{ coa[1] }}</p>
+                                            </div>
+                                            <div class="col-6">
+                                                <p class="text-muted mb-1">PO Reference:</p>
+                                                <p>{{ coa[2] or 'Not specified' }}</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <p class="text-muted mb-1">Notes:</p>
+                                            <p>{{ coa[3] if coa[3] else '-' }}</p>
+                                        </div>
+                                        
+                                        {% if coa[4] %}
+                                            <div class="file-info">
+                                                <i class="far fa-file-pdf fa-lg text-danger"></i>
+                                                <a href="{{ url_for('serve_coa_file', brand=product[2], filename=coa[4]) }}" 
+                                                   target="_blank" class="text-decoration-none">
+                                                    View COA PDF #1
+                                                </a>
+                                            </div>
+                                        {% endif %}
+                                        
+                                        {% if coa[5] %}
+                                            <div class="file-info">
+                                                <i class="far fa-file-pdf fa-lg text-danger"></i>
+                                                <a href="{{ url_for('serve_coa_file', brand=product[2], filename=coa[5]) }}" 
+                                                   target="_blank" class="text-decoration-none">
+                                                    View COA PDF #2
+                                                </a>
+                                            </div>
+                                        {% endif %}
+
+                                        {% if coa[6] %}
+                                            <div class="file-info">
+                                                <i class="far fa-file-pdf fa-lg text-danger"></i>
+                                                <a href="{{ url_for('serve_coa_file', brand=product[2], filename=coa[6]) }}" 
+                                                   target="_blank" class="text-decoration-none">
+                                                    View COA PDF #3
+                                                </a>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i> No COAs added yet for this product.
+                        <a href="/new_document?type=COA" 
+                           class="alert-link">Add one now</a>.
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Certificates Tab -->
+            <div class="tab-pane fade" id="cert-content" role="tabpanel" aria-labelledby="cert-tab">
+                {% if certificates %}
+                    <div class="row">
+                        {% for cert in certificates %}
+                            <div class="col-md-6 col-lg-4">
+                                <div class="card document-card">
+                                    <div class="card-header bg-warning bg-opacity-25 d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-award me-2"></i> Certificate
+                                        </h5>
+                                        <span class="badge bg-warning doc-type-badge">CERT</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <p class="text-muted mb-1">Document Info:</p>
+                                            <div><small><strong>Created:</strong> {{ cert[1] }}</small></div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <p class="text-muted mb-1">Notes:</p>
+                                            <p>{{ cert[2] if cert[2] else '-' }}</p>
+                                        </div>
+                                        
+                                        {% if cert[3] %}
+                                            <div class="file-info">
+                                                <i class="far fa-file-pdf fa-lg text-danger"></i>
+                                                <a href="{{ url_for('serve_cert_file', brand=product[2], filename=cert[3]) }}"
+                                                   target="_blank" class="text-decoration-none">
+                                                    View Certificate PDF
+                                                </a>
+                                            </div>
+                                        {% else %}
+                                            <div class="text-muted">No file uploaded</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i> No certificates added yet for this product.
+                        <a href="/new_document?type=Certificates" 
+                           class="alert-link">Add one now</a>.
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- FDA Licenses Tab -->
+            <div class="tab-pane fade" id="fda-content" role="tabpanel" aria-labelledby="fda-tab">
+                {% if fda_licenses %}
+                    <div class="row">
+                        {% for fda in fda_licenses %}
+                            <div class="col-md-6">
+                                <div class="card document-card">
+                                    <div class="card-header bg-danger bg-opacity-25 d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-medkit me-2"></i> FDA License
+                                        </h5>
+                                        <span class="badge bg-danger doc-type-badge">FDA</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <p class="text-muted mb-1">English Name:</p>
+                                                <p>{{ fda[1] }}</p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p class="text-muted mb-1">Thai Name:</p>
+                                                <p>{{ fda[2] }}</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <p class="text-muted mb-1">Manufacturer:</p>
+                                                <p>{{ fda[3] if fda[3] else '-' }}</p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p class="text-muted mb-1">FDA Number:</p>
+                                                <p>{{ fda[4] }}</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <p class="text-muted mb-1">Product Type:</p>
+                                            <p>{{ fda[5] }}</p>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <p class="text-muted mb-1">Document Info:</p>
+                                            <div><small><strong>Created:</strong> {{ fda[6] }}</small></div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <p class="text-muted mb-1">Notes:</p>
+                                            <p>{{ fda[7] if fda[7] else '-' }}</p>
+                                        </div>
+                                        
+                                        {% if fda[8] %}
+                                            <div class="file-info">
+                                                <i class="far fa-file-pdf fa-lg text-danger"></i>
+                                                <a href="{{ url_for('serve_fda_file', brand=product[2], filename=fda[8]) }}" 
+                                                   target="_blank" class="text-decoration-none">
+                                                    View FDA License PDF
+                                                </a>
+                                            </div>
+                                        {% else %}
+                                            <div class="text-muted">No file uploaded</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i> No FDA licenses added yet for this product.
+                        <a href="/new_document?type=FDA" 
+                           class="alert-link">Add one now</a>.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const hash = window.location.hash;
+        if (hash) {
+            const tabTrigger = document.querySelector(`button[data-bs-target="${hash}"]`);
+            if (tabTrigger) {
+                const tab = new bootstrap.Tab(tabTrigger);
+                tab.show();
+            }
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Error - FDA Document Track{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <div class="card shadow-sm">
+                <div class="card-body p-5">
+                    <div class="mb-4">
+                        <i class="fas fa-exclamation-triangle text-danger" style="font-size: 5rem;"></i>
+                    </div>
+                    <h2 class="mb-4">เกิดข้อผิดพลาด</h2>
+                    <p class="lead mb-4">{{ error }}</p>
+                    <div class="mt-4">
+                        <a href="{{ url_for('index') }}" class="btn btn-primary">
+                            <i class="fas fa-home me-2"></i> กลับหน้าหลัก
+                        </a>
+                        {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary ms-2">
+                            <i class="fas fa-tachometer-alt me-2"></i> ไปที่แดชบอร์ด
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

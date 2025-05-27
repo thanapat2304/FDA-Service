@@ -1,0 +1,165 @@
+{% extends 'base_login.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2><i class="fas fa-users me-2"></i> จัดการผู้ใช้งาน</h2>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                    <i class="fas fa-user-plus me-2"></i> เพิ่มผู้ใช้งาน
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ชื่อผู้ใช้</th>
+                                    <th>สิทธิ์การใช้งาน</th>
+                                    <th>วันที่สร้าง</th>
+                                    <th>เข้าสู่ระบบล่าสุด</th>
+                                    <th>การจัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in users %}
+                                <tr>
+                                    <td>{{ user.username }}</td>
+                                    <td>
+                                        {% if user.role == 'admin' %}
+                                        <span class="badge bg-danger">ผู้ดูแลระบบ</span>
+                                        {% elif user.role == 'editor' %}
+                                        <span class="badge bg-warning">ผู้แก้ไข</span>
+                                        {% else %}
+                                        <span class="badge bg-info">ผู้ดู</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ user.created_at }}</td>
+                                    <td>{{ user.last_login if user.last_login else '-' }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-warning me-1" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#editUserModal{{ user.user_id }}">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#deleteUserModal{{ user.user_id }}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <!-- Edit User Modal -->
+                                <div class="modal fade" id="editUserModal{{ user.user_id }}" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">
+                                                    <i class="fas fa-user-edit me-2"></i>
+                                                    แก้ไขผู้ใช้งาน: {{ user.username }}
+                                                </h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <form action="{{ url_for('edit_user_route', user_id=user.user_id) }}" method="post">
+                                                <div class="modal-body">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">รหัสผ่านใหม่</label>
+                                                        <input type="password" name="password" class="form-control" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">สิทธิ์การใช้งาน</label>
+                                                        <select name="role" class="form-select" required>
+                                                            <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>ผู้ดูแลระบบ</option>
+                                                            <option value="editor" {% if user.role == 'editor' %}selected{% endif %}>ผู้แก้ไข</option>
+                                                            <option value="viewer" {% if user.role == 'viewer' %}selected{% endif %}>ผู้ดู</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                                                    <button type="submit" class="btn btn-primary">บันทึก</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Delete User Modal -->
+                                <div class="modal fade" id="deleteUserModal{{ user.user_id }}" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">
+                                                    <i class="fas fa-user-times me-2"></i>
+                                                    ลบผู้ใช้งาน
+                                                </h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>คุณต้องการลบผู้ใช้ "{{ user.username }}" ใช่หรือไม่?</p>
+                                                <p class="text-danger"><small>การดำเนินการนี้ไม่สามารถย้อนกลับได้</small></p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                                                <a href="{{ url_for('delete_user_route', user_id=user.user_id) }}" class="btn btn-danger">ลบ</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add User Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-user-plus me-2"></i>
+                    เพิ่มผู้ใช้งาน
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('add_user_route') }}" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">ชื่อผู้ใช้</label>
+                        <input type="text" name="username" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">รหัสผ่าน</label>
+                        <input type="password" name="password" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">สิทธิ์การใช้งาน</label>
+                        <select name="role" class="form-select" required>
+                            <option value="admin">ผู้ดูแลระบบ</option>
+                            <option value="editor">ผู้แก้ไข</option>
+                            <option value="viewer">ผู้ดู</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                    <button type="submit" class="btn btn-primary">บันทึก</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 
