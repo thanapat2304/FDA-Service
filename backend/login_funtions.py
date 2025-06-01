@@ -59,7 +59,7 @@ def login_route():
             session['fda_role'] = user['role']
             session.permanent = True
 
-            update_sql = "UPDATE fda_users SET last_login = NOW() WHERE username = %s"
+            update_sql = "UPDATE demo_users SET last_login = NOW() WHERE username = %s"
             execute_query_portal(update_sql, (username,))
             
             flash('เข้าสู่ระบบสำเร็จ', 'success')
